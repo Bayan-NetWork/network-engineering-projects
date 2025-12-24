@@ -1,0 +1,66 @@
+
+version 15.2
+
+no service password-encryption
+!
+hostname SW-Employees
+!
+!
+username admin privilege 15 secret Cisco123      
+!             
+!         
+ip domain-name mycompany.local
+!         
+!    VLAN Configuration
+vlan 10
+ name IT
+vlan 20
+ name Sales
+vlan 30
+ name HR
+vlan 40
+ name Servers
+!
+!
+!    Trunk Links (To Router & Switch 2)
+interface GigabitEthernet0/0
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ negotiation auto
+!
+interface GigabitEthernet0/1
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ negotiation auto
+!
+!    Access Ports (End Users)
+interface GigabitEthernet0/2
+ switchport access vlan 10
+ switchport mode access
+ negotiation auto
+!
+interface GigabitEthernet0/3
+ switchport access vlan 20
+ switchport mode access
+ negotiation auto
+!
+interface GigabitEthernet1/0
+ switchport access vlan 30
+ switchport mode access
+!
+!
+! 
+!    Management Interface (SVI)
+interface Vlan10
+ ip address 192.168.10.10 255.255.255.0
+!
+ip default-gateway 192.168.10.1
+!
+!
+!SSH Access Lines
+line vty 0 4
+ login local
+ transport input ssh
+!
+!
+end
