@@ -1,0 +1,41 @@
+!
+version 15.9
+hostname Branch2
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+no aaa new-model
+ip cef
+no ipv6 cef
+!
+! =========================
+! Interfaces
+! =========================
+interface Loopback0
+description Branch2-LAN
+ip address 192.168.60.1 255.255.255.0
+!
+interface GigabitEthernet0/0
+description WAN-Link-to-HQ
+ip address 10.1.2.2 255.255.255.252
+!
+! =========================
+! OSPF Configuration
+! =========================
+router ospf 1
+router-id 3.3.3.3
+network 10.1.2.0 0.0.0.3 area 1
+network 192.168.60.0 0.0.0.255 area 1
+!
+! =========================
+! Management
+! =========================
+no ip http server
+no ip http secure-server
+!
+line vty 0 4
+login
+transport input none
+!
+end

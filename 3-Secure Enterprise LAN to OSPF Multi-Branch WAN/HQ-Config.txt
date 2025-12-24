@@ -1,0 +1,111 @@
+!
+version 15.9
+hostname R1
+!
+! =========================
+! Global Services
+! =========================
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+no aaa new-model
+ip cef
+no ipv6 cef
+!
+! =========================
+! DHCP Configuration
+! =========================
+ip dhcp pool IT_POOL
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.1
+dns-server 8.8.8.8
+!
+ip dhcp pool SALES_POOL
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.1
+dns-server 8.8.8.8
+!
+ip dhcp pool HR_POOL
+network 192.168.30.0 255.255.255.0
+default-router 192.168.30.1
+dns-server 8.8.8.8
+!
+ip dhcp pool SERVERS_POOL
+network 192.168.40.0 255.255.255.0
+default-router 192.168.40.1
+dns-server 8.8.8.8
+!
+! =========================
+! Interfaces
+! =========================
+interface GigabitEthernet0/0
+no ip address
+!
+interface GigabitEthernet0/0.10
+description Gateway-IT
+encapsulation dot1Q 10
+ip address 192.168.10.1 255.255.255.0
+!
+interface GigabitEthernet0/0.20
+description Gateway-Sales
+encapsulation dot1Q 20
+ip address 192.168.20.1 255.255.255.0
+ip access-group BLOCK_SALES_TO_SERVERS in
+!
+interface GigabitEthernet0/0.30
+description Gateway-HR
+encapsulation dot1Q 30
+ip address 192.168.30.1 255.255.255.0
+!
+interface GigabitEthernet0/0.40
+description Gateway-Servers
+encapsulation dot1Q 40
+ip address 192.168.40.1 255.255.255.0
+!
+interface GigabitEthernet0/1
+description WAN-Link-to-Branch1
+ip address 10.1.1.1 255.255.255.252
+!
+interface GigabitEthernet0/2
+description WAN-Link-to-Branch2
+ip address 10.1.2.1 255.255.255.252
+!
+! =========================
+! OSPF Configuration
+! =========================
+router ospf 1
+router-id 1.1.1.1
+
+passive-interface default
+no passive-interface GigabitEthernet0/1
+no passive-interface GigabitEthernet0/2
+
+network 10.1.1.0 0.0.0.3 area 1
+network 10.1.2.0 0.0.0.3 area 1
+
+network 192.168.10.0 0.0.0.255 area 0
+network 192.168.20.0 0.0.0.255 area 0
+network 192.168.30.0 0.0.0.255 area 0
+network 192.168.40.0 0.0.0.255 area 0
+
+area 0 range 192.168.0.0 255.255.0.0
+!
+! =========================
+! Access Control
+! =========================
+ip access-list extended BLOCK_SALES_TO_SERVERS
+deny ip 192.168.20.0 0.0.0.255 192.168.40.0 0.0.0.255
+permit ip any any
+!
+! =========================
+! Management
+! =========================
+no ip http server
+no ip http secure-server
+!
+line vty 0 4
+login
+transport input none
+!
+end
+
